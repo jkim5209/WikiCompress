@@ -1,10 +1,13 @@
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <cassert>
 #include <math.h>
+
+//#define NDEBUG
 
 using namespace std;
 
@@ -22,15 +25,22 @@ struct hash_pair {
 void generate_tokens(const string& filename) {
     cout.precision(15);
     vector<token_data> tok_list;
-    unordered_map<string, int> token_map;
-    unordered_map<int, string> id_map;
+    map<string, int> token_map;
+    map<int, string> id_map;
     int token_id = 0;
+    #ifndef NDEBUG
     string total_string;
+    #endif
+    double init_bytes = 0;
     {
         ifstream fin(filename);
         char c;
         while (fin >> c) {
+            #ifndef NDEBUG
             total_string += c;
+            #endif
+
+            init_bytes += 1;
             string c_in_string = string(1,c);
             auto it = token_map.find(c_in_string);
             if (it == token_map.end()) {
@@ -47,7 +57,8 @@ void generate_tokens(const string& filename) {
     double prev_objs_fun = 1e20;
 
     while (true) {
-        unordered_map<pair<int, int>, int, hash_pair> pair_map;
+        //map<pair<int, int>, int, hash_pair> pair_map;
+        map<pair<int, int>, int> pair_map;
         int i = 0;
         while (true) {
             int next_idx = tok_list[i].second + i;
@@ -91,9 +102,10 @@ void generate_tokens(const string& filename) {
             obj_fun += double(p.first.length());
         }
         obj_fun += token_map.size();
-        obj_fun += num_toks * log2(token_map.size());
+        obj_fun += num_toks * log2(token_map.size()) / 8;
 
-        cout << "obj func " << obj_fun << "\n";
+        //cout << "obj func " << obj_fun << "\n";
+        cout << "compression " << obj_fun / init_bytes << "\n";
         if (prev_objs_fun < obj_fun) break;
         prev_objs_fun = obj_fun;
     }
@@ -116,19 +128,29 @@ void generate_tokens(const string& filename) {
         count_string.emplace_back(p.second, id_map[p.first]);
     }
     sort(count_string.begin(), count_string.end());
+    ofstream fout("dictionary.txt");
     for (auto it = count_string.rbegin(); it != count_string.rend(); ++it) {
-        cout << it->first << " " << it->second << "\n";
+        fout << it->first << " " << it->second << "\n";
     }
+
+    
 
     string test_string;
     for (int token : clean_tok_list) {
         test_string += id_map[token];
     }
 
-    assert(total_string == test_string);
+    #ifndef NDEBUG
+    if (total_string == test_string) {
+        cout << "assert passed!" << endl;
+    } else {
+        cout << "assert failed!" << endl;
+
+    }
+    #endif
 }
 
 int main() {
-    generate_tokens("enwik_1000");
+    generate_tokens("enwik_10000");
     return 0;
 }
