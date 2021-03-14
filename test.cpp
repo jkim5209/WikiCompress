@@ -15,20 +15,27 @@ int main(int argc, char** argv) {
     auto start = chrono::high_resolution_clock::now();
     ContributorGenerator cg;
     std::string magic_token = "ContributorGenerator";
-    std::string reconstruction = str;
+    std::string reconstruction = "";
+    std::string suffix_to_process = str;
     while (true)
     {
-        auto p = cg.find_range(reconstruction);
+        auto p = cg.find_range(suffix_to_process);
         if (p.first == -1)
         {
             break;
         }
-        cg.store_str(reconstruction.substr(p.first, p.second));
-        reconstruction.replace(p.first, p.second, magic_token);
+        cg.store_str(suffix_to_process.substr(p.first, p.second));
+        reconstruction += suffix_to_process.substr(0, p.first);
+        reconstruction += magic_token;
+        suffix_to_process = suffix_to_process.substr(p.first + p.second, suffix_to_process.length() - p.first - p.second);
     }
+    reconstruction += suffix_to_process;
+    cg.store_to_file("contributor_generator.txt");
     auto compression_stop = chrono::high_resolution_clock::now();
     cout << "took " << chrono::duration_cast<chrono::seconds>(compression_stop - start).count() << " to compress" << endl;
-
+    std::ofstream out_compressed("compressed.txt");
+    out_compressed << reconstruction;
+    out_compressed.close();
     while (true)
     {
         size_t replace_idx = reconstruction.find(magic_token);
@@ -40,6 +47,8 @@ int main(int argc, char** argv) {
     }
     auto decompression_stop = chrono::high_resolution_clock::now();
     cout << "took " << chrono::duration_cast<chrono::seconds>(decompression_stop - compression_stop).count() << " to decompress" << endl;
-
+    std::ofstream out_decompressed("decompressed.txt");
+    out_decompressed << reconstruction;
+    out_decompressed.close();
     cout << (reconstruction == str) << endl;
 }
