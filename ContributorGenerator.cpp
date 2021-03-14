@@ -110,7 +110,7 @@ void ContributorGenerator::store_str(const std::string& str) {
         return;
     }
 
-    std::cout << "NO regex match" << std::endl;
+    std::cout << "NO regex match for Contributor" << std::endl;
     throw "NO REGEX MATCHES!";
 
 }
