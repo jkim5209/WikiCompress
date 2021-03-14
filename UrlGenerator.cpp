@@ -1,5 +1,6 @@
 #include "UrlGenerator.hpp"
 #include <ctype.h>
+#include <iostream>
 
 std::queue<bool> UrlGenerator::is_https;
 std::queue<bool> UrlGenerator::has_www;
@@ -38,6 +39,7 @@ void UrlGenerator::store_str(const std::string& str) {
         is_https.push(false);
         used_len += http_str.size();
     } else {
+        std::cerr << "Unexpected URL Prefix: " << str << std::endl;
         throw "UNEXPECTED URL PREFIX";
     }
 
@@ -55,9 +57,16 @@ void UrlGenerator::store_str(const std::string& str) {
 std::pair<int, int> UrlGenerator::find_range(
         const std::string& str) {
     // starts from any mention of http
-    size_t start = str.find("http");
+    size_t http_start = str.find("http://");
+    size_t https_start = str.find("https://");
+    if (http_start == std::string::npos && https_start == std::string::npos) {
+        return {-1, 0};
+    }
+
+    size_t start = std::min(http_start, https_start);
+
     size_t len = 0;
-    while (len < str.size() && !(isspace(str[len]) || str[len] == ']')) {
+    while (len < str.size() && !(isspace(str[start + len]) || str[start + len] == ']')) {
         ++len;
     }
     return {start, len};
