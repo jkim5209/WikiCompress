@@ -59,13 +59,12 @@ std::string ContributorGenerator::gen_str() {
 void ContributorGenerator::store_str(const std::string& str) {
     std::cout << str << std::endl;
     assert(str.find(start_str) == 0);
-    //std::regex user_re("<username>(.*)</username>\n        <id>(\\d+)</id>\n");
-    std::regex user_re("<username>(.*)</username>");
+    std::regex user_re("<username>(.*)</username>\n        <id>(\\d+)</id>\n");
     std::smatch m;
-    if (std::regex_match(str, user_re)) {
+    if (std::regex_search(str, m, user_re)) {
         std::cout << "this match" << std::endl;
-        std::regex_search(str, m, user_re);
-        int user_id = stoi(m[2]);
+        std::cout << m[2] << std::endl;
+        int user_id = stoi(m[2], nullptr, 0);
         id_to_name[user_id] = m[1];
         user_ids.push(user_id);
         types.push(ContributorType::ID_SPECIFIED);
@@ -73,11 +72,10 @@ void ContributorGenerator::store_str(const std::string& str) {
     }
 
     std::regex ip_re("<ip>(\\d).(\\d).(\\d).(\\d)</ip>\n");
-    if (std::regex_match(str, ip_re)) {
-        std::regex_search(str, m, ip_re);
+    if (std::regex_search(str, m, ip_re)) {
         IP new_ip;
         for (int i = 0; i < 4; ++i) {
-            new_ip.nums[i] = stoi(m[i + 1]);
+            new_ip.nums[i] = stoi(m[i + 1], nullptr, 0);
         }
         ips.push(new_ip);
         types.push(ContributorType::IP);
@@ -85,20 +83,19 @@ void ContributorGenerator::store_str(const std::string& str) {
     }
     
     std::regex ip_conversion("<ip>Conversion Script</ip>\n");
-    if (std::regex_match(str, ip_conversion)) {
+    if (std::regex_search(str, m, ip_conversion)) {
         types.push(ContributorType::CONVERSION_SCRIPT);
         return;
     }
 
     std::regex ip_namespace("<ip>Template namespace initialisation script</ip>\n");
-    if (std::regex_match(str, ip_namespace)) {
+    if (std::regex_search(str, m, ip_namespace)) {
         types.push(ContributorType::TEMPLATE_NAMESPACE);
         return;
     }
 
     std::regex ip_misc("<ip>(.*)</ip>\n");
-    if (std::regex_match(str, ip_misc)) {
-        std::regex_search(str, m, ip_misc);
+    if (std::regex_search(str, m, ip_misc)) {
         misc.push(m[1]);
         types.push(ContributorType::MISC);
         return;
