@@ -57,13 +57,10 @@ std::string ContributorGenerator::gen_str() {
 }
 
 void ContributorGenerator::store_str(const std::string& str) {
-    std::cout << str << std::endl;
     assert(str.find(start_str) == 0);
     std::regex user_re("<username>(.*)</username>\n        <id>(\\d+)</id>\n");
     std::smatch m;
     if (std::regex_search(str, m, user_re)) {
-        std::cout << "this match" << std::endl;
-        std::cout << m[2] << std::endl;
         int user_id = stoi(m[2], nullptr, 0);
         id_to_name[user_id] = m[1];
         user_ids.push(user_id);
