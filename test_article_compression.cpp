@@ -1,6 +1,4 @@
 #include "WikiArticleGenerator.hpp"
-#include "ContributorGenerator.hpp"
-#include "UrlGenerator.hpp"
 //#include <cassert>
 #include <fstream>
 #include <iostream>
