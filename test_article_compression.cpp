@@ -1,3 +1,4 @@
+#include "WikiArticleGenerator.hpp"
 #include "ContributorGenerator.hpp"
 #include "UrlGenerator.hpp"
 //#include <cassert>
@@ -61,11 +62,8 @@ int main(int argc, char** argv) {
 
     vector<StringGenerator*> generators;
     vector<string> magic_tokens;
-    generators.push_back(new ContributorGenerator());
-    magic_tokens.push_back("ContributorGenerator");
-
-    generators.push_back(new UrlGenerator());
-    magic_tokens.push_back("UrlGenerator");
+    generators.push_back(new WikiArticleGenerator());
+    magic_tokens.push_back("WikiArticleGenerator");
 
     auto start = chrono::high_resolution_clock::now();
     string compressed_str = str;
