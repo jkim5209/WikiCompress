@@ -1,0 +1,31 @@
+AUTMR - ASCII Unicode Token Mixed Representation
+
+This article documents the AUTMR. 
+It optimizes for the average case of tokens
+
+Single byte:
+Represented by 0 top bit. Rest of 7 bits represents the token number
+
+Two bytes:
+First byte: Represented by 1 top bit, second byte's top bit is 0.
+Rest of 14 bits represents the second order token number.
+
+Three bytes:
+First byte's top bit: 1
+Second byte's top bit: 1
+Rest of 22 bits:
+0 to 2^7 - 1 : single byte unicode
+2^7 to 2^11 + 2^7 - 1 : two byte unicode
+2^11 + 2^7 to 2^16 + 2^11 + 2^7 - 1 : three byte unicode
+2^16 + 2^11 + 2^7 to 2^21 + 2^16 + 2^11 + 2^7 - 1 : four byte unicode
+
+ASCII representation: enwik9 doesn't have 0x00-0x1F except for 0x09 and 0x0A (tab and line feed) (30 not used. So 127 - 30 = 97 used characters).
+ASCII will be represented by shifting the ascii down by subtracting 0x20, except tab = 0x60 and line feed = 0x61
+
+2^21 + 2^16 + 2^11 + 2^7 to 2^21 + 2^16 + 2^11 + 2^7 + 97 - 1: single ASCII
+2^21 + 2^16 + 2^11 + 2^7 + 97 to 2^21 + 2^16 + 2^11 + 2^7 + 97 + 97^2 - 1: two ASCII
+2^21 + 2^16 + 2^11 + 2^7 + 97 + 97^2 to 2^21 + 2^16 + 2^11 + 2^7 + 97 + 97^2 + 97^3 - 1: three ASCII
+
+2^21 + 2^16 + 2^11 + 2^7 + 97 + 97^2 + 97^3 + n * 97 to 2^21 + 2^16 + 2^11 + 2^7 + 97 + 97^2 + 97^3 + n * 97- 1: single ASCII followed by token n after (0 <= n < M)
+
+2^21 + 2^16 + 2^11 + 2^7 + 97 + 97^2 + 97^3 + M * 97 to 2^22 - 1: third order tokens (add 2^7 + 2^14 to get position in dictionary)
